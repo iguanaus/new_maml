@@ -199,6 +199,8 @@ def test(model, saver, sess, exp_string, data_generator, test_num_updates=None):
                 batch_x[0, :, 2] = phase[0]
 
             inputa = batch_x[:, :num_classes*FLAGS.update_batch_size, :]
+            #print("in a: " , inputa)
+            print("Shape: " , inputa.shape)
             inputb = batch_x[:,num_classes*FLAGS.update_batch_size:, :]
             labela = batch_y[:, :num_classes*FLAGS.update_batch_size, :]
             labelb = batch_y[:,num_classes*FLAGS.update_batch_size:, :]
