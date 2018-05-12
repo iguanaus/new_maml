@@ -106,8 +106,8 @@ class DataGenerator(object):
     def getPreData(self,num_tasks=100,train=True):
         #random.seed(123490234)
         ranId = random.randint(0,num_tasks-1)
-        print("num tasks: " , num_tasks)
-        print("Rand id: " , ranId)
+        #print("num tasks: " , num_tasks)
+        #print("Rand id: " , ranId)
         if train:
             return self.allTrainData[ranId]
         else:
