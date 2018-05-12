@@ -20,7 +20,7 @@ FLAGS = flags.FLAGS
 #filename = dataset_PATH + task_id + "_{0}-shot_2.p".format(num_shots)
 #tasks = pickle.load(open(filename, "rb"))
 
-filename = "data/C-sin_10-shot_2.p"
+filename = "data/C-sin_10-shot_legit_2.p"
 #batch_size = 25
 
 tasks = pickle.load(open(filename, "rb"))
@@ -50,9 +50,6 @@ def convertData(batch_size,myTrain):
                 labelAll = np.vstack((labelAll,labels))
         allTrainData.append([inputAll,labelAll,0,0])
     return allTrainData
-
-
-
 
 
 class DataGenerator(object):
@@ -147,7 +144,7 @@ class DataGenerator(object):
             print("setupData. Done setting up data....")
         else:
             self.allTrainData = convertData(self.batch_size,tasks['tasks_train'])
-            self.allTestData = convertData(numTest,tasks['tasks_test'])
+            self.allTestData = convertData(numTestBatches,tasks['tasks_test'])
             #print("All train: " , self.allTrainData)
             #print("All tests: " , self.allTestData)
             print(len(self.allTrainData))
@@ -169,7 +166,7 @@ class DataGenerator(object):
             if numTestBatches > 1:
                 numTestBatches = len(self.allTestData)
             ranId = random.randint(0,numTestBatches-1)
-            print("testing..: " , ranId)
+            #print("testing..: " , ranId)
             return self.allTestData[ranId]
 
     def make_data_tensor(self, train=True):
