@@ -159,7 +159,7 @@ def train(model, saver, sess, exp_string, data_generator, resume_itr=0):
             #We need to nromalize it out. 
             pre_loss = result[0]/200.0*FLAGS.meta_batch_size
             post_loss = result[1]/200.0*FLAGS.meta_batch_size
-            print('Validation results: ' + str(pre_loss) + ', ' + str(post_loss)
+            print('Validation results: ' + str(pre_loss) + ', ' + str(post_loss))
 
     saver.save(sess, FLAGS.logdir + '/' + exp_string +  '/model' + str(itr))
 
