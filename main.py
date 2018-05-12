@@ -74,7 +74,7 @@ def train(model, saver, sess, exp_string, data_generator, resume_itr=0):
     SUMMARY_INTERVAL = 100
     SAVE_INTERVAL = 1000
     if FLAGS.datasource == 'sinusoid':
-        PRINT_INTERVAL = 1000
+        PRINT_INTERVAL = 100
         TEST_PRINT_INTERVAL = PRINT_INTERVAL*5
     else:
         PRINT_INTERVAL = 100
@@ -136,7 +136,7 @@ def train(model, saver, sess, exp_string, data_generator, resume_itr=0):
             saver.save(sess, FLAGS.logdir + '/' + exp_string + '/model' + str(itr))
 
         # sinusoid is infinite data, so no need to test on meta-validation set.
-        if (itr!=0) and itr % TEST_PRINT_INTERVAL == 0 and FLAGS.datasource !='sinusoid':
+        if (itr!=0) and itr % TEST_PRINT_INTERVAL == 0:
             if 'generate' not in dir(data_generator):
                 feed_dict = {}
                 if model.classification:
@@ -156,7 +156,10 @@ def train(model, saver, sess, exp_string, data_generator, resume_itr=0):
                     input_tensors = [model.total_loss1, model.total_losses2[FLAGS.num_updates-1]]
 
             result = sess.run(input_tensors, feed_dict)
-            print('Validation results: ' + str(result[0]) + ', ' + str(result[1]))
+            #We need to nromalize it out. 
+            pre_loss = result[0]/200.0*FLAGS.meta_batch_size
+            post_loss = result[1]/200.0*FLAGS.meta_batch_size
+            print('Validation results: ' + str(pre_loss) + ', ' + str(post_loss)
 
     saver.save(sess, FLAGS.logdir + '/' + exp_string +  '/model' + str(itr))
 

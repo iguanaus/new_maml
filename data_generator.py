@@ -23,6 +23,7 @@ class DataGenerator(object):
             num_samples_per_class: num samples to generate per class in one batch
             batch_size: size of meta batch size (e.g. number of functions)
         """
+        self.allTrainData = None
         self.allTestData = None
 
         self.batch_size = batch_size
@@ -86,20 +87,30 @@ class DataGenerator(object):
 
 
 
-    def setupData(self,num_tasks=100):
+    def setupData(self,num_tasks=100,numTest=200):
         #print("setting up data.....")
+        self.allTrainData = []
         self.allTestData = []
         #This is how many unique task to make.
         for i in xrange(0,num_tasks):
+            self.allTrainData.append(self.generate_sinusoid_batch(usePreValues=False))
+        ordd = self.batch_size
+        self.batch_size = numTest
+        for i in xrange(0,num_tasks):
             self.allTestData.append(self.generate_sinusoid_batch(usePreValues=False))
-        #print("sell all tasks: " , self.allTestData)
+        self.batch_size = ordd
+        #print("sell all tasks: " , self.allTrainData)
         #Then you cPan just call this
         #generate_sinusoid_batch
-    def getPreData(self,num_tasks=100):
+    def getPreData(self,num_tasks=100,train=True):
         #random.seed(123490234)
         ranId = random.randint(0,num_tasks-1)
         #print("Rand id: " , ranId)
-        return self.allTestData[ranId]
+        if train:
+            return self.allTrainData[ranId]
+        else:
+            print("testing...")
+            return self.allTestData[ranId]
 
     def make_data_tensor(self, train=True):
         if train:
@@ -184,9 +195,9 @@ class DataGenerator(object):
     def generate_sinusoid_batch(self, train=True, input_idx=None,usePreValues=True,numTotal=40000):
         if FLAGS.limit_task == True and usePreValues:
             #print("us")
-            if self.allTestData == None:
+            if self.allTrainData == None:
                 self.setupData(num_tasks=numTotal)
-            return self.getPreData(num_tasks=numTotal)
+            return self.getPreData(num_tasks=numTotal,train=train)
 
         # Note train arg is not used (but it is used for omniglot method.
         # input_idx is used during qualitative testing --the number of examples used for the grad update

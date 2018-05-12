@@ -1,1 +1,0 @@
-python main.py --datasource=sinusoid --logdir=logs/sine2/ --metatrain_iterations=70000 --norm=None --update_batch_size=10 --limit_task True
