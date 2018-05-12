@@ -113,7 +113,7 @@ class DataGenerator(object):
             return self.allTrainData[ranId]
         else:
             ranId = random.randint(0,numTestBatches-1)
-            print("testing...")
+            print("testing..: " , ranId)
             return self.allTestData[ranId]
 
     def make_data_tensor(self, train=True):

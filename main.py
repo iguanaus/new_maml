@@ -170,7 +170,7 @@ def train(model, saver, sess, exp_string, data_generator, resume_itr=0):
     saver.save(sess, FLAGS.logdir + '/' + exp_string +  '/model' + str(itr))
 
 # calculated for omniglot
-NUM_TEST_POINTS = 600
+NUM_TEST_POINTS = 20
 
 def test(model, saver, sess, exp_string, data_generator, test_num_updates=None):
     num_classes = data_generator.num_classes # for classification, 1 otherwise
@@ -195,6 +195,8 @@ def test(model, saver, sess, exp_string, data_generator, test_num_updates=None):
                 batch_x[0, :, 2] = phase[0]
 
             inputa = batch_x[:, :num_classes*FLAGS.update_batch_size, :]
+            #print("in a: " , inputa)
+            print("Shape: " , inputa.shape)
             inputb = batch_x[:,num_classes*FLAGS.update_batch_size:, :]
             labela = batch_y[:, :num_classes*FLAGS.update_batch_size, :]
             labelb = batch_y[:,num_classes*FLAGS.update_batch_size:, :]
@@ -207,8 +209,10 @@ def test(model, saver, sess, exp_string, data_generator, test_num_updates=None):
             result = sess.run([model.total_loss1] +  model.total_losses2, feed_dict)
         #print(result)
         metaval_accuracies.append(result)
-
-    metaval_accuracies = np.array(metaval_accuracies)
+    #pre_loss = result[0]/100.0*FLAGS.meta_batch_size
+    #        post_loss = result[1]/100.0*FLAGS.meta_batch_size
+    print("meta batch size: " , FLAGS.meta_batch_size)
+    metaval_accuracies = np.array(metaval_accuracies)/100.0
     means = np.mean(metaval_accuracies, 0)
     stds = np.std(metaval_accuracies, 0)
     ci95 = 1.96*stds/np.sqrt(NUM_TEST_POINTS)
