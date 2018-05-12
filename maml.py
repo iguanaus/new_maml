@@ -131,6 +131,15 @@ class MAML:
                 outputas, outputbs, lossesa, lossesb  = result
 
         ## Performance & Optimization
+
+        self.l1_regularizer = tf.contrib.layers.l1_regularizer(
+           scale=FLAGS.regularize_penal, scope=None
+        )
+        self.weights1 = tf.trainable_variables() # all vars of your graph
+        regularization_penalty = tf.contrib.layers.apply_regularization(self.l1_regularizer, self.weights1)
+        regularize = False
+
+
         if 'train' in prefix:
             self.total_loss1 = total_loss1 = tf.reduce_sum(lossesa) / tf.to_float(FLAGS.meta_batch_size)
             self.total_losses2 = total_losses2 = [tf.reduce_sum(lossesb[j]) / tf.to_float(FLAGS.meta_batch_size) for j in range(num_updates)]
@@ -139,11 +148,18 @@ class MAML:
             if self.classification:
                 self.total_accuracy1 = total_accuracy1 = tf.reduce_sum(accuraciesa) / tf.to_float(FLAGS.meta_batch_size)
                 self.total_accuracies2 = total_accuracies2 = [tf.reduce_sum(accuraciesb[j]) / tf.to_float(FLAGS.meta_batch_size) for j in range(num_updates)]
-            self.pretrain_op = tf.train.AdamOptimizer(self.meta_lr).minimize(total_loss1)
-
+            if regularize:
+                self.pretrain_op = tf.train.AdamOptimizer(self.meta_lr).minimize(total_loss1 + regularization_penalty)
+            else:
+                self.pretrain_op = tf.train.AdamOptimizer(self.meta_lr).minimize(total_loss1)
+        
             if FLAGS.metatrain_iterations > 0:
+
                 optimizer = tf.train.AdamOptimizer(self.meta_lr)
-                self.gvs = gvs = optimizer.compute_gradients(self.total_losses2[FLAGS.num_updates-1])
+                if regularize:
+                    self.gvs = gvs = optimizer.compute_gradients(self.total_losses2[FLAGS.num_updates-1]+regularization_penalty)
+                else:
+                    self.gvs = gvs = optimizer.compute_gradients(self.total_losses2[FLAGS.num_updates-1])
                 if FLAGS.datasource == 'miniimagenet':
                     gvs = [(tf.clip_by_value(grad, -10, 10), var) for grad, var in gvs]
                 self.metatrain_op = optimizer.apply_gradients(gvs)

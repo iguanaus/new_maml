@@ -50,6 +50,8 @@ flags.DEFINE_integer('update_batch_size', 5, 'number of examples used for inner 
 flags.DEFINE_float('update_lr', 1e-3, 'step size alpha for inner gradient update.') # 0.1 for omniglot
 flags.DEFINE_integer('num_updates', 1, 'number of inner gradient updates during training.')
 
+flags.DEFINE_float('regularize_penal', 1e-3, 'Regularization penalty')
+
 flags.DEFINE_bool('limit_task', False, 'if True, limit the # of tasks shown')
 flags.DEFINE_integer('limit_task_num', 4, 'if True, limit the # of tasks shown')
 
@@ -153,8 +155,9 @@ def train(model, saver, sess, exp_string, data_generator, resume_itr=0):
                 inputb = batch_x[:, num_classes*FLAGS.update_batch_size:, :]
                 labela = batch_y[:, :num_classes*FLAGS.update_batch_size, :]
                 labelb = batch_y[:, num_classes*FLAGS.update_batch_size:, :]
-                #print("inputa: " , inputa)
+                #print("inputa: " , inputa[0])
                 #print("Ina Shape: " , inputa.shape)
+                #my = input("hi")
                 feed_dict = {model.inputa: inputa, model.inputb: inputb,  model.labela: labela, model.labelb: labelb, model.meta_lr: 0.0}
                 if model.classification:
                     input_tensors = [model.total_accuracy1, model.total_accuracies2[FLAGS.num_updates-1]]
@@ -164,13 +167,14 @@ def train(model, saver, sess, exp_string, data_generator, resume_itr=0):
             result = sess.run(input_tensors, feed_dict)
             #We need to nromalize it out. 
             pre_loss = result[0]/100.0*FLAGS.meta_batch_size
+            print("meta batch size: " , FLAGS.meta_batch_size)
             post_loss = result[1]/100.0*FLAGS.meta_batch_size
             print('Validation results: ' + str(pre_loss) + ', ' + str(post_loss))
 
     saver.save(sess, FLAGS.logdir + '/' + exp_string +  '/model' + str(itr))
 
 # calculated for omniglot
-NUM_TEST_POINTS = 600
+NUM_TEST_POINTS = 20
 
 def test(model, saver, sess, exp_string, data_generator, test_num_updates=None):
     num_classes = data_generator.num_classes # for classification, 1 otherwise
@@ -208,7 +212,7 @@ def test(model, saver, sess, exp_string, data_generator, test_num_updates=None):
         #print(result)
         metaval_accuracies.append(result)
 
-    metaval_accuracies = np.array(metaval_accuracies)
+    metaval_accuracies = np.array(metaval_accuracies)/100.0 #Because we fixed batch size to be 100
     means = np.mean(metaval_accuracies, 0)
     stds = np.std(metaval_accuracies, 0)
     ci95 = 1.96*stds/np.sqrt(NUM_TEST_POINTS)
