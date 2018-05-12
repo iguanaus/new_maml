@@ -87,8 +87,8 @@ class DataGenerator(object):
 
 
 
-    def setupData(self,num_tasks=100,numTest=200):
-        #print("setting up data.....")
+    def setupData(self,num_tasks=100,numTest=100):
+        print("setupData. setting up data.....")
         self.allTrainData = []
         self.allTestData = []
         #This is how many unique task to make.
@@ -96,9 +96,10 @@ class DataGenerator(object):
             self.allTrainData.append(self.generate_sinusoid_batch(usePreValues=False))
         ordd = self.batch_size
         self.batch_size = numTest
-        for i in xrange(0,num_tasks):
+        for i in xrange(0,1):
             self.allTestData.append(self.generate_sinusoid_batch(usePreValues=False))
         self.batch_size = ordd
+        print("setupData. Done setting up data....")
         #print("sell all tasks: " , self.allTrainData)
         #Then you cPan just call this
         #generate_sinusoid_batch
@@ -110,7 +111,7 @@ class DataGenerator(object):
             return self.allTrainData[ranId]
         else:
             print("testing...")
-            return self.allTestData[ranId]
+            return self.allTestData[0]
 
     def make_data_tensor(self, train=True):
         if train:

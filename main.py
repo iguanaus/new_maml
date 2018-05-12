@@ -149,6 +149,8 @@ def train(model, saver, sess, exp_string, data_generator, resume_itr=0):
                 inputb = batch_x[:, num_classes*FLAGS.update_batch_size:, :]
                 labela = batch_y[:, :num_classes*FLAGS.update_batch_size, :]
                 labelb = batch_y[:, num_classes*FLAGS.update_batch_size:, :]
+                #print("inputa: " , inputa)
+                print("Ina Shape: " , inputa.shape)
                 feed_dict = {model.inputa: inputa, model.inputb: inputb,  model.labela: labela, model.labelb: labelb, model.meta_lr: 0.0}
                 if model.classification:
                     input_tensors = [model.total_accuracy1, model.total_accuracies2[FLAGS.num_updates-1]]
@@ -157,8 +159,8 @@ def train(model, saver, sess, exp_string, data_generator, resume_itr=0):
 
             result = sess.run(input_tensors, feed_dict)
             #We need to nromalize it out. 
-            pre_loss = result[0]/200.0*FLAGS.meta_batch_size
-            post_loss = result[1]/200.0*FLAGS.meta_batch_size
+            pre_loss = result[0]/100.0*FLAGS.meta_batch_size
+            post_loss = result[1]/100.0*FLAGS.meta_batch_size
             print('Validation results: ' + str(pre_loss) + ', ' + str(post_loss))
 
     saver.save(sess, FLAGS.logdir + '/' + exp_string +  '/model' + str(itr))
