@@ -27,7 +27,7 @@ tasks = pickle.load(open(filename, "rb"))
 
 def convertData(batch_size,myTrain):
     num_batches = len(myTrain)/batch_size
-    print("Making: " , num_batches, " batches")
+    print("My Train length: " , len(myTrain), " batch size: " , batch_size, " num batches: " , num_batches)
     #Now pick each one of the groups
     allTrainData = []
     for i in xrange(0,num_batches):
@@ -249,7 +249,7 @@ class DataGenerator(object):
         all_label_batches = tf.one_hot(all_label_batches, self.num_classes)
         return all_image_batches, all_label_batches
 
-    def generate_sinusoid_batch(self, train=True, input_idx=None,usePreValues=True,numTotal=None,numTestBatches=1):
+    def generate_sinusoid_batch(self, train=True, input_idx=None,usePreValues=True,numTotal=None,numTestBatches=100):
         if numTotal == None:
             numTotal = FLAGS.limit_task_num
 

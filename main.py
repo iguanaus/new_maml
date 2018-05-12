@@ -91,6 +91,12 @@ def train(model, saver, sess, exp_string, data_generator, resume_itr=0):
     num_classes = data_generator.num_classes # for classification, 1 otherwise
     multitask_weights, reg_weights = [], []
 
+    val_filename = FLAGS.logdir +'/'+ exp_string + '/' + 'validation_loss.csv'
+    val_file = open(val_filename,'w')
+    train_filename = FLAGS.logdir +'/'+ exp_string + '/' + 'train_loss.csv'
+    train_file = open(train_filename,'w')
+    
+
     for itr in range(resume_itr, FLAGS.pretrain_iterations + FLAGS.metatrain_iterations):
         feed_dict = {}
         if 'generate' in dir(data_generator):
@@ -136,6 +142,9 @@ def train(model, saver, sess, exp_string, data_generator, resume_itr=0):
                 print_str = 'Iteration ' + str(itr - FLAGS.pretrain_iterations)
             print_str += ': ' + str(np.mean(prelosses)) + ', ' + str(np.mean(postlosses))
             print(print_str)
+            train_file.write(str(itr - FLAGS.pretrain_iterations) +"," + str(np.mean(prelosses)) + ', ' + str(np.mean(postlosses))+"\n")
+
+
             prelosses, postlosses = [], []
 
         if (itr!=0) and itr % SAVE_INTERVAL == 0:
@@ -156,7 +165,7 @@ def train(model, saver, sess, exp_string, data_generator, resume_itr=0):
                 labela = batch_y[:, :num_classes*FLAGS.update_batch_size, :]
                 labelb = batch_y[:, num_classes*FLAGS.update_batch_size:, :]
                 #print("inputa: " , inputa[0])
-                #print("Ina Shape: " , inputa.shape)
+                print("Ina Shape: " , inputa.shape)
                 #my = input("hi")
                 feed_dict = {model.inputa: inputa, model.inputb: inputb,  model.labela: labela, model.labelb: labelb, model.meta_lr: 0.0}
                 if model.classification:
@@ -166,10 +175,17 @@ def train(model, saver, sess, exp_string, data_generator, resume_itr=0):
 
             result = sess.run(input_tensors, feed_dict)
             #We need to nromalize it out. 
+
             pre_loss = result[0]/100.0*FLAGS.meta_batch_size
-            #print("meta batch size: " , FLAGS.meta_batch_size)
+            print("meta batch size: " , FLAGS.meta_batch_size)
             post_loss = result[1]/100.0*FLAGS.meta_batch_size
             print('Validation results: ' + str(pre_loss) + ', ' + str(post_loss))
+            
+            val_file.write(str(itr - FLAGS.pretrain_iterations) +"," + str(pre_loss) + ', ' + str(post_loss)+"\n")
+            train_file.flush()
+            val_file.flush()
+
+
 
     saver.save(sess, FLAGS.logdir + '/' + exp_string +  '/model' + str(itr))
 
@@ -189,7 +205,7 @@ def test(model, saver, sess, exp_string, data_generator, test_num_updates=None):
             feed_dict = {}
             feed_dict = {model.meta_lr : 0.0}
         else:
-            batch_x, batch_y, amp, phase = data_generator.generate(train=False,numTestBatches=2000)
+            batch_x, batch_y, amp, phase = data_generator.generate(train=False,numTestBatches=100)
             #print("generating...")
             #print(batch_x)
 
