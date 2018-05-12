@@ -185,7 +185,7 @@ def test(model, saver, sess, exp_string, data_generator, test_num_updates=None):
             feed_dict = {}
             feed_dict = {model.meta_lr : 0.0}
         else:
-            batch_x, batch_y, amp, phase = data_generator.generate(train=False)
+            batch_x, batch_y, amp, phase = data_generator.generate(train=False,numTestBatches=2000)
             #print("generating...")
             #print(batch_x)
 
@@ -205,6 +205,7 @@ def test(model, saver, sess, exp_string, data_generator, test_num_updates=None):
             result = sess.run([model.metaval_total_accuracy1] + model.metaval_total_accuracies2, feed_dict)
         else:  # this is for sinusoid
             result = sess.run([model.total_loss1] +  model.total_losses2, feed_dict)
+        #print(result)
         metaval_accuracies.append(result)
 
     metaval_accuracies = np.array(metaval_accuracies)

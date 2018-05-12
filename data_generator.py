@@ -87,7 +87,7 @@ class DataGenerator(object):
 
 
 
-    def setupData(self,num_tasks=100,numTest=100):
+    def setupData(self,num_tasks=100,numTest=100,numTestBatches=1):
         print("setupData. setting up data.....")
         self.allTrainData = []
         self.allTestData = []
@@ -96,23 +96,25 @@ class DataGenerator(object):
             self.allTrainData.append(self.generate_sinusoid_batch(usePreValues=False))
         ordd = self.batch_size
         self.batch_size = numTest
-        for i in xrange(0,1):
+        for i in xrange(0,numTestBatches):
             self.allTestData.append(self.generate_sinusoid_batch(usePreValues=False))
         self.batch_size = ordd
         print("setupData. Done setting up data....")
         #print("sell all tasks: " , self.allTrainData)
         #Then you cPan just call this
         #generate_sinusoid_batch
-    def getPreData(self,num_tasks=100,train=True):
+    def getPreData(self,num_tasks=100,train=True,numTestBatches=1):
         #random.seed(123490234)
-        ranId = random.randint(0,num_tasks-1)
+        
         #print("num tasks: " , num_tasks)
         #print("Rand id: " , ranId)
         if train:
+            ranId = random.randint(0,num_tasks-1)
             return self.allTrainData[ranId]
         else:
+            ranId = random.randint(0,numTestBatches-1)
             print("testing...")
-            return self.allTestData[0]
+            return self.allTestData[ranId]
 
     def make_data_tensor(self, train=True):
         if train:
@@ -194,15 +196,15 @@ class DataGenerator(object):
         all_label_batches = tf.one_hot(all_label_batches, self.num_classes)
         return all_image_batches, all_label_batches
 
-    def generate_sinusoid_batch(self, train=True, input_idx=None,usePreValues=True,numTotal=None):
+    def generate_sinusoid_batch(self, train=True, input_idx=None,usePreValues=True,numTotal=None,numTestBatches=1):
         if numTotal == None:
             numTotal = FLAGS.limit_task_num
 
         if FLAGS.limit_task == True and usePreValues:
             #print("us")
             if self.allTrainData == None:
-                self.setupData(num_tasks=numTotal)
-            return self.getPreData(num_tasks=numTotal,train=train)
+                self.setupData(num_tasks=numTotal,numTestBatches=numTestBatches)
+            return self.getPreData(num_tasks=numTotal,train=train,numTestBatches=numTestBatches)
 
         # Note train arg is not used (but it is used for omniglot method.
         # input_idx is used during qualitative testing --the number of examples used for the grad update
