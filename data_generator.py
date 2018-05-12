@@ -6,11 +6,54 @@ import tensorflow as tf
 
 from tensorflow.python.platform import flags
 from utils import get_images
+import pickle
 
 FLAGS = flags.FLAGS
 #random.seed(123490234)
 
 #This method will create all the data.
+#task_id = "C-sin"
+# task_id = "C-sin"
+# task_id = "bounce-states"
+#num_shots = 10
+#dataset_PATH = "data/"
+#filename = dataset_PATH + task_id + "_{0}-shot_2.p".format(num_shots)
+#tasks = pickle.load(open(filename, "rb"))
+
+filename = "data/C-sin_10-shot_2.p"
+#batch_size = 25
+
+tasks = pickle.load(open(filename, "rb"))
+
+def convertData(batch_size,myTrain):
+    num_batches = len(myTrain)/batch_size
+    print("Making: " , num_batches, " batches")
+    #Now pick each one of the groups
+    allTrainData = []
+    for i in xrange(0,num_batches):
+        tasks_for_batch = myTrain[i*batch_size:(i+1)*batch_size]
+        inputAll = np.array([])
+        labelAll = np.array([])
+        for task in tasks_for_batch:
+            data = task[0]
+            inputa = data[0][0]
+            labela = data[0][1]
+            inputb = data[1][0]
+            labelb = data[1][1]           
+            inputs = np.vstack((inputa,inputb)).reshape(1,-1,1)
+            labels = np.vstack((labela,labelb)).reshape(1,-1,1)
+            if inputAll.size == 0:
+                inputAll = inputs
+                labelAll = labels
+            else:
+                inputAll = np.vstack((inputAll,inputs))
+                labelAll = np.vstack((labelAll,labels))
+        allTrainData.append([inputAll,labelAll,0,0])
+    return allTrainData
+
+
+
+
 
 class DataGenerator(object):
     """
@@ -88,18 +131,29 @@ class DataGenerator(object):
 
 
     def setupData(self,num_tasks=100,numTest=100,numTestBatches=1):
-        print("setupData. setting up data.....")
-        self.allTrainData = []
-        self.allTestData = []
-        #This is how many unique task to make.
-        for i in xrange(0,num_tasks):
-            self.allTrainData.append(self.generate_sinusoid_batch(usePreValues=False))
-        ordd = self.batch_size
-        self.batch_size = numTest
-        for i in xrange(0,numTestBatches):
-            self.allTestData.append(self.generate_sinusoid_batch(usePreValues=False))
-        self.batch_size = ordd
-        print("setupData. Done setting up data....")
+        oldVersion = False
+        if oldVersion:
+            print("setupData. setting up data.....")
+            self.allTrainData = []
+            self.allTestData = []
+            #This is how many unique task to make.
+            for i in xrange(0,num_tasks):
+                self.allTrainData.append(self.generate_sinusoid_batch(usePreValues=False))
+            ordd = self.batch_size
+            self.batch_size = numTest
+            for i in xrange(0,numTestBatches):
+                self.allTestData.append(self.generate_sinusoid_batch(usePreValues=False))
+            self.batch_size = ordd
+            print("setupData. Done setting up data....")
+        else:
+            self.allTrainData = convertData(self.batch_size,tasks['tasks_train'])
+            self.allTestData = convertData(numTest,tasks['tasks_test'])
+            #print("All train: " , self.allTrainData)
+            #print("All tests: " , self.allTestData)
+            print(len(self.allTrainData))
+            print(len(self.allTestData))
+        print("Done with setup....")
+
         #print("sell all tasks: " , self.allTrainData)
         #Then you cPan just call this
         #generate_sinusoid_batch
@@ -109,9 +163,11 @@ class DataGenerator(object):
         #print("num tasks: " , num_tasks)
         #print("Rand id: " , ranId)
         if train:
-            ranId = random.randint(0,num_tasks-1)
+            ranId = random.randint(0,len(self.allTrainData)-1)
             return self.allTrainData[ranId]
         else:
+            if numTestBatches > 1:
+                numTestBatches = len(self.allTestData)
             ranId = random.randint(0,numTestBatches-1)
             print("testing..: " , ranId)
             return self.allTestData[ranId]
