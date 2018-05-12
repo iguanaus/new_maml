@@ -106,7 +106,8 @@ class DataGenerator(object):
     def getPreData(self,num_tasks=100,train=True):
         #random.seed(123490234)
         ranId = random.randint(0,num_tasks-1)
-        #print("Rand id: " , ranId)
+        print("num tasks: " , num_tasks)
+        print("Rand id: " , ranId)
         if train:
             return self.allTrainData[ranId]
         else:
@@ -193,7 +194,10 @@ class DataGenerator(object):
         all_label_batches = tf.one_hot(all_label_batches, self.num_classes)
         return all_image_batches, all_label_batches
 
-    def generate_sinusoid_batch(self, train=True, input_idx=None,usePreValues=True,numTotal=40000):
+    def generate_sinusoid_batch(self, train=True, input_idx=None,usePreValues=True,numTotal=None):
+        if numTotal == None:
+            numTotal = FLAGS.limit_task_num
+
         if FLAGS.limit_task == True and usePreValues:
             #print("us")
             if self.allTrainData == None:

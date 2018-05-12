@@ -51,6 +51,7 @@ flags.DEFINE_float('update_lr', 1e-3, 'step size alpha for inner gradient update
 flags.DEFINE_integer('num_updates', 1, 'number of inner gradient updates during training.')
 
 flags.DEFINE_bool('limit_task', False, 'if True, limit the # of tasks shown')
+flags.DEFINE_integer('limit_task_num', 4, 'if True, limit the # of tasks shown')
 
 
 ## Model options
@@ -100,6 +101,9 @@ def train(model, saver, sess, exp_string, data_generator, resume_itr=0):
                     batch_x[i, :, 2] = phase[i]
 
             inputa = batch_x[:, :num_classes*FLAGS.update_batch_size, :]
+            #print("Input a: " , inputa.shape)
+            #print(inputa[0])
+
             labela = batch_y[:, :num_classes*FLAGS.update_batch_size, :]
             inputb = batch_x[:, num_classes*FLAGS.update_batch_size:, :] # b used for testing
             labelb = batch_y[:, num_classes*FLAGS.update_batch_size:, :]
@@ -150,7 +154,7 @@ def train(model, saver, sess, exp_string, data_generator, resume_itr=0):
                 labela = batch_y[:, :num_classes*FLAGS.update_batch_size, :]
                 labelb = batch_y[:, num_classes*FLAGS.update_batch_size:, :]
                 #print("inputa: " , inputa)
-                print("Ina Shape: " , inputa.shape)
+                #print("Ina Shape: " , inputa.shape)
                 feed_dict = {model.inputa: inputa, model.inputb: inputb,  model.labela: labela, model.labelb: labelb, model.meta_lr: 0.0}
                 if model.classification:
                     input_tensors = [model.total_accuracy1, model.total_accuracies2[FLAGS.num_updates-1]]
