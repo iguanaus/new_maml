@@ -119,8 +119,8 @@ class DataGenerator(object):
             self.iterCount += 1
             if (self.iterCount > (numTestBatches-1)):
                 self.iterCount = 0
-            print("testing..: " , ranId)
-            return self.allTestData[ranId]
+            print("testing..: " , idRet)
+            return self.allTestData[idRet]
 
     def generate_sinusoid_batch(self, train=True, input_idx=None,usePreValues=True,numTotal=None):
         numTestBatches = FLAGS.numTestBatches
