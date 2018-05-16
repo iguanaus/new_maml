@@ -108,15 +108,16 @@ class DataGenerator(object):
         if train:
             idRet = self.iterCount
             self.iterCount += 1
-            if (self.iterCount >= (len(self.allTrainData)-1)):
+            if (self.iterCount > (len(self.allTrainData)-1)):
                 self.iterCount = 0
+            print("Id return: " , idRet)
             return self.allTrainData[idRet]
         else:
             if numTestBatches > 1:
                 numTestBatches = len(self.allTestData)
             idRet = self.iterCount
             self.iterCount += 1
-            if (self.iterCount >= (numTestBatches-1)):
+            if (self.iterCount > (numTestBatches-1)):
                 self.iterCount = 0
             print("testing..: " , ranId)
             return self.allTestData[ranId]
