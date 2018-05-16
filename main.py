@@ -109,7 +109,7 @@ def train(model, saver, sess, exp_string, data_generator, resume_itr=0):
                     batch_x[i, :, 2] = phase[i]
 
             inputa = batch_x[:, :num_classes*FLAGS.update_batch_size, :]
-            print("Input a: " , inputa.shape)
+            #print("Input a: " , inputa.shape)
             #print(inputa[0])
 
             labela = batch_y[:, :num_classes*FLAGS.update_batch_size, :]
