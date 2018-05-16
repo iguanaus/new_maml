@@ -52,7 +52,7 @@ flags.DEFINE_integer('num_updates', 1, 'number of inner gradient updates during 
 
 flags.DEFINE_float('regularize_penal', 1e-3, 'Regularization penalty')
 
-flags.DEFINE_bool('limit_task', False, 'if True, limit the # of tasks shown')
+flags.DEFINE_bool('limit_task', True, 'if True, limit the # of tasks shown')
 flags.DEFINE_integer('limit_task_num', 4, 'if True, limit the # of tasks shown')
 
 flags.DEFINE_integer('numTestBatches', 1, '1 if training, 100 if testing.')
@@ -75,6 +75,9 @@ flags.DEFINE_integer('test_iter', -1, 'iteration to load model (-1 for latest mo
 flags.DEFINE_bool('test_set', False, 'Set to true to test on the the test set, False for the validation set.')
 flags.DEFINE_integer('train_update_batch_size', -1, 'number of examples used for gradient update during training (use if you want to test with a different number).')
 flags.DEFINE_float('train_update_lr', -1, 'value of inner gradient step step during training. (use if you want to test with a different value)') # 0.1 for omniglot
+
+if FLAGS.test_set==True:
+    FLAGS.numTestBatches = 100
 
 def train(model, saver, sess, exp_string, data_generator, resume_itr=0):
     SUMMARY_INTERVAL = 100
@@ -208,7 +211,7 @@ def test(model, saver, sess, exp_string, data_generator, test_num_updates=None):
             feed_dict = {}
             feed_dict = {model.meta_lr : 0.0}
         else:
-            batch_x, batch_y, amp, phase = data_generator.generate(train=False,numTestBatches=100)
+            batch_x, batch_y, amp, phase = data_generator.generate(train=False)
             #print("generating...")
             #print(batch_x)
 
