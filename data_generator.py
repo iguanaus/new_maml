@@ -129,7 +129,7 @@ class DataGenerator(object):
         if FLAGS.limit_task == True and usePreValues:
             #print("us")
             if self.allTrainData == None:
-                self.setupData(num_tasks=numTotal,numTestBatches=numTestBatches)
+                self.setupData()
             return self.getPreData(num_tasks=numTotal,train=train,numTestBatches=numTestBatches)
 
         # Note train arg is not used (but it is used for omniglot method.
