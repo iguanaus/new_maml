@@ -161,6 +161,7 @@ class DataGenerator(object):
         #print("Rand id: " , ranId)
         if train:
             ranId = random.randint(0,len(self.allTrainData)-1)
+            #print("RanID:", ranId)
             return self.allTrainData[ranId]
         else:
             if numTestBatches > 1:

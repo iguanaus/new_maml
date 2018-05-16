@@ -193,7 +193,7 @@ def train(model, saver, sess, exp_string, data_generator, resume_itr=0):
     saver.save(sess, FLAGS.logdir + '/' + exp_string +  '/model' + str(itr))
 
 # calculated for omniglot
-NUM_TEST_POINTS = 20
+NUM_TEST_POINTS = 200
 
 def test(model, saver, sess, exp_string, data_generator, test_num_updates=None):
     num_classes = data_generator.num_classes # for classification, 1 otherwise
