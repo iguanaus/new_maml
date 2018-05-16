@@ -55,6 +55,9 @@ flags.DEFINE_float('regularize_penal', 1e-3, 'Regularization penalty')
 flags.DEFINE_bool('limit_task', False, 'if True, limit the # of tasks shown')
 flags.DEFINE_integer('limit_task_num', 4, 'if True, limit the # of tasks shown')
 
+flags.DEFINE_integer('numTestBatches', 1, '1 if training, 100 if testing.')
+
+flags.DEFINE_integer('test_batch_amount', 100, 'Should be fixed at 100')
 
 ## Model options
 flags.DEFINE_string('norm', 'batch_norm', 'batch_norm, layer_norm, or None')
@@ -176,9 +179,9 @@ def train(model, saver, sess, exp_string, data_generator, resume_itr=0):
             result = sess.run(input_tensors, feed_dict)
             #We need to nromalize it out. 
 
-            pre_loss = result[0]/100.0*FLAGS.meta_batch_size
+            pre_loss = result[0]/FLAGS.test_batch_amount*FLAGS.meta_batch_size
             print("meta batch size: " , FLAGS.meta_batch_size)
-            post_loss = result[1]/100.0*FLAGS.meta_batch_size
+            post_loss = result[1]/FLAGS.test_batch_amount*FLAGS.meta_batch_size
             print('Validation results: ' + str(pre_loss) + ', ' + str(post_loss))
             
             val_file.write(str(itr - FLAGS.pretrain_iterations) +"," + str(pre_loss) + ', ' + str(post_loss)+"\n")
