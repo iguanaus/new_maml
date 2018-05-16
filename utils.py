@@ -43,7 +43,10 @@ def normalize(inp, activation, reuse, scope):
         return tf_layers.layer_norm(inp, activation_fn=activation, reuse=reuse, scope=scope)
     elif FLAGS.norm == 'None':
         if activation is not None:
-            return activation(inp)
+            if FLAGS.active == 'lrelu':
+                return activation(inp,alpha=0.3)
+            else:
+                return activation(inp)
         else:
             return inp
 
@@ -52,6 +55,11 @@ def mse(pred, label):
     pred = tf.reshape(pred, [-1])
     label = tf.reshape(label, [-1])
     return tf.reduce_mean(tf.square(pred-label))
+
+def huber(pred,label):
+    pred = tf.reshape(pred, [-1])
+    label = tf.reshape(label, [-1])
+    return tf.losses.huber_loss(label,pred)
 
 def xent(pred, label):
     # Note - with tf version <=0.12, this loss has incorrect 2nd derivatives

@@ -10,7 +10,7 @@ except KeyError as e:
           file=sys.stderr)
 
 from tensorflow.python.platform import flags
-from utils import mse, xent, conv_block, normalize
+from utils import mse, xent, conv_block, normalize, huber
 
 FLAGS = flags.FLAGS
 
@@ -25,27 +25,13 @@ class MAML:
         self.test_num_updates = test_num_updates
         if FLAGS.datasource == 'sinusoid':
             self.dim_hidden = [40, 40]
-            self.loss_func = mse
+            if FLAGS.lossfunc == "huber":
+                self.loss_func = huber
+            elif FLAGS.lossfunc == "mse":
+                self.loss_func = mse
             self.forward = self.forward_fc
             self.construct_weights = self.construct_fc_weights
-        elif FLAGS.datasource == 'omniglot' or FLAGS.datasource == 'miniimagenet':
-            self.loss_func = xent
-            self.classification = True
-            if FLAGS.conv:
-                self.dim_hidden = FLAGS.num_filters
-                self.forward = self.forward_conv
-                self.construct_weights = self.construct_conv_weights
-            else:
-                self.dim_hidden = [256, 128, 64, 64]
-                self.forward=self.forward_fc
-                self.construct_weights = self.construct_fc_weights
-            if FLAGS.datasource == 'miniimagenet':
-                self.channels = 3
-            else:
-                self.channels = 1
-            self.img_size = int(np.sqrt(self.dim_input/self.channels))
-        else:
-            raise ValueError('Unrecognized data source.')
+        
 
     def construct_model(self, input_tensors=None, prefix='metatrain_'):
         # a: training data for inner gradient, b: test data for meta gradient
@@ -194,9 +180,15 @@ class MAML:
         return weights
 
     def forward_fc(self, inp, weights, reuse=False):
-        hidden = normalize(tf.matmul(inp, weights['w1']) + weights['b1'], activation=tf.nn.relu, reuse=reuse, scope='0')
+        myAct = tf.nn.relu
+        if FLAGS.active == "relu":
+            myAct = tf.nn.relu
+        if FLAGS.active == 'lrelu':
+            myAct = tf.nn.leaky_relu
+
+        hidden = normalize(tf.matmul(inp, weights['w1']) + weights['b1'], activation=myAct, reuse=reuse, scope='0')
         for i in range(1,len(self.dim_hidden)):
-            hidden = normalize(tf.matmul(hidden, weights['w'+str(i+1)]) + weights['b'+str(i+1)], activation=tf.nn.relu, reuse=reuse, scope=str(i+1))
+            hidden = normalize(tf.matmul(hidden, weights['w'+str(i+1)]) + weights['b'+str(i+1)], activation=myAct, reuse=reuse, scope=str(i+1))
         return tf.matmul(hidden, weights['w'+str(len(self.dim_hidden)+1)]) + weights['b'+str(len(self.dim_hidden)+1)]
 
     def construct_conv_weights(self):
