@@ -55,9 +55,9 @@ flags.DEFINE_float('regularize_penal', 1e-3, 'Regularization penalty')
 flags.DEFINE_bool('limit_task', True, 'if True, limit the # of tasks shown')
 flags.DEFINE_integer('limit_task_num', 4, 'if True, limit the # of tasks shown')
 
-flags.DEFINE_integer('numTestBatches', 1, '1 if training, 100 if testing.')
+flags.DEFINE_integer('numTestBatches', 1, '1 if training, 200 if testing.') #This is how many testing batches there should be. 
 
-flags.DEFINE_integer('test_batch_amount', 100, 'Should be fixed at 100')
+flags.DEFINE_integer('test_batch_amount', 100, 'Should be fixed at 100') #This is how many testing tasks are in one batch together. 
 
 ## Model options
 flags.DEFINE_string('norm', 'batch_norm', 'batch_norm, layer_norm, or None')
@@ -77,7 +77,9 @@ flags.DEFINE_integer('train_update_batch_size', -1, 'number of examples used for
 flags.DEFINE_float('train_update_lr', -1, 'value of inner gradient step step during training. (use if you want to test with a different value)') # 0.1 for omniglot
 
 if FLAGS.test_set==True:
-    FLAGS.numTestBatches = 100
+    print("Testing, using all 200 test batches")
+    FLAGS.numTestBatches = 200
+
 
 def train(model, saver, sess, exp_string, data_generator, resume_itr=0):
     SUMMARY_INTERVAL = 100
@@ -236,7 +238,7 @@ def test(model, saver, sess, exp_string, data_generator, test_num_updates=None):
         #print(result)
         metaval_accuracies.append(result)
 
-    metaval_accuracies = np.array(metaval_accuracies)/100.0 #Because we fixed batch size to be 100
+    metaval_accuracies = np.array(metaval_accuracies)/FLAGS.test_batch_amount #Because we fixed batch size to be 100
     means = np.mean(metaval_accuracies, 0)
     stds = np.std(metaval_accuracies, 0)
     ci95 = 1.96*stds/np.sqrt(NUM_TEST_POINTS)
