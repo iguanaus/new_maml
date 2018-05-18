@@ -1,0 +1,20 @@
+To generate results:
+
+python main.py --datasource=sinusoid --logdir=logs/sine16/ --metatrain_iterations=5000 --norm=None --update_batch_size=10 --limit_task True --regularize_penal 0.0
+
+python main.py --datasource=sinusoid --logdir=logs/sine15/ --metatrain_iterations=5000 --norm=None --update_batch_size=10 --limit_task True --regularize_penal 0.0 --train=False --test_set=True
+
+
+----Tor trying to get results 
+
+python main.py --datasource=sinusoid --logdir=logs/sine7/  --norm=None --update_batch_size=10 --regularize_penal 0.0 --meta_lr .01 --update_lr .01 --metatrain_iterations=70000 --num_updates=10 --meta_batch_size=10 --resume=False
+
+
+----Tor New
+
+python main.py --datasource=sinusoid --logdir=logs/sine9/  --norm=None --update_batch_size=100 --regularize_penal 0.0 --meta_lr .001 --update_lr .001 --encoder_iterations=2000 --metatrain_iterations=5000 --num_updates=10 --meta_batch_size=25 --resume=False
+
+
+
+python main.py --datasource=sinusoid --logdir=logs/sine1/  --norm=None --update_batch_size=100 --regularize_penal 0.0000001 --meta_lr .001 --update_lr .001 --metatrain_iterations=5000 --num_updates=10 --meta_batch_size=25 --resume=False
+

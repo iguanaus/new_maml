@@ -123,7 +123,7 @@ class MAML:
         )
         self.weights1 = tf.trainable_variables() # all vars of your graph
         regularization_penalty = tf.contrib.layers.apply_regularization(self.l1_regularizer, self.weights1)
-        regularize = False
+        regularize = True
 
 
         if 'train' in prefix:
@@ -134,20 +134,12 @@ class MAML:
             if self.classification:
                 self.total_accuracy1 = total_accuracy1 = tf.reduce_sum(accuraciesa) / tf.to_float(FLAGS.meta_batch_size)
                 self.total_accuracies2 = total_accuracies2 = [tf.reduce_sum(accuraciesb[j]) / tf.to_float(FLAGS.meta_batch_size) for j in range(num_updates)]
-            if regularize:
-                self.pretrain_op = tf.train.AdamOptimizer(self.meta_lr).minimize(total_loss1 + regularization_penalty)
-            else:
-                self.pretrain_op = tf.train.AdamOptimizer(self.meta_lr).minimize(total_loss1)
+            self.pretrain_op = tf.train.AdamOptimizer(self.meta_lr).minimize(total_loss1 + regularization_penalty)
         
             if FLAGS.metatrain_iterations > 0:
 
                 optimizer = tf.train.AdamOptimizer(self.meta_lr)
-                if regularize:
-                    self.gvs = gvs = optimizer.compute_gradients(self.total_losses2[FLAGS.num_updates-1]+regularization_penalty)
-                else:
-                    self.gvs = gvs = optimizer.compute_gradients(self.total_losses2[FLAGS.num_updates-1])
-                if FLAGS.datasource == 'miniimagenet':
-                    gvs = [(tf.clip_by_value(grad, -10, 10), var) for grad, var in gvs]
+                self.gvs = gvs = optimizer.compute_gradients(self.total_losses2[FLAGS.num_updates-1]+regularization_penalty)
                 self.metatrain_op = optimizer.apply_gradients(gvs)
         else:
             print("Meta batch: " , FLAGS.meta_batch_size)

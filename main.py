@@ -50,7 +50,7 @@ flags.DEFINE_integer('update_batch_size', 5, 'number of examples used for inner 
 flags.DEFINE_float('update_lr', 1e-3, 'step size alpha for inner gradient update.') # 0.1 for omniglot
 flags.DEFINE_integer('num_updates', 1, 'number of inner gradient updates during training.')
 
-flags.DEFINE_float('regularize_penal', 1e-3, 'Regularization penalty')
+flags.DEFINE_float('regularize_penal', 0.0000001, 'Regularization penalty')
 
 flags.DEFINE_bool('limit_task', True, 'if True, limit the # of tasks shown')
 flags.DEFINE_integer('limit_task_num', 4, 'if True, limit the # of tasks shown')
@@ -66,7 +66,7 @@ flags.DEFINE_bool('conv', True, 'whether or not to use a convolutional network, 
 flags.DEFINE_bool('max_pool', False, 'Whether or not to use max pooling rather than strided convolutions')
 flags.DEFINE_bool('stop_grad', False, 'if True, do not use second derivatives in meta-optimization (for speed)')
 flags.DEFINE_string('active','lrelu','Activation to use. relu or lrelu')
-flags.DEFINE_string('lossfunc','huber','Loss function. huber or mse')
+flags.DEFINE_string('lossfunc','mse','Loss function. huber or mse')
 
 ## Logging, saving, and testing options
 flags.DEFINE_bool('log', True, 'if false, do not log summaries, for debugging code.')
